@@ -1,67 +1,34 @@
-import puppeteer from "puppeteer";
 import chromium from "@sparticuz/chromium";
+import puppeteer from "puppeteer-core";
 
 export async function exportResumePDF(resumeId) {
+  const executablePath = await chromium.executablePath();
+
   const browser = await puppeteer.launch({
-    args: [
-      ...chromium.args,
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--disable-accelerated-2d-canvas",
-      "--no-first-run",
-      "--no-zygote",
-      "--single-process", // <- this one doesn't work in Windows
-      "--disable-gpu"
-    ],
-    defaultViewport: chromium.defaultViewport,
-    executablePath: await chromium.executablePath(),
+    executablePath,
     headless: true,
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
   });
 
   const page = await browser.newPage();
 
-  // Set A4 viewport (96 DPI)
-  await page.setViewport({
-    width: 1240, // A4 width at 96 DPI
-    height: 1754, // A4 height
-    deviceScaleFactor: 1,
+  await page.goto(`${process.env.URL}/view/document/${resumeId}`, {
+    waitUntil: "domcontentloaded",
   });
 
-  try {
-    // Pass resume JSON into the page
-    await page.goto(`${process.env.URL}/view/document/${resumeId}`, {
-      waitUntil: "domcontentloaded",
-    });
+  const pdfBuffer = await page.pdf({
+    format: "A4",
+    printBackground: true,
+    margin: {
+      top: "0px",
+      right: "0px",
+      bottom: "0px",
+      left: "0px",
+    },
+    preferCSSPageSize: true,
+  });
 
-    page.on("console", (msg) => console.log("PAGE LOG:", msg));
-    page.on("pageerror", (err) => console.log("PAGE ERROR:", err));
-    page.on("requestfailed", (req) =>
-      console.log("REQUEST FAILED:", req.url(), req.failure())
-    );
-
-    // Wait for a specific element to ensure the page is fully rendered
-    // await page.waitForSelector(".resume-preview", { timeout: 30000 });
-
-    // Export PDF using Chrome's native engine
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: {
-        top: "0px",
-        right: "0px",
-        bottom: "0px",
-        left: "0px",
-      },
-      preferCSSPageSize: true,
-    });
-
-    await browser.close();
-
-    return pdfBuffer;
-  } catch (error) {
-    console.error("PDF export failed:", error);
-    await browser.close();
-    throw error;
-  }
+  await browser.close();
+  return pdfBuffer;
 }
