@@ -1,9 +1,12 @@
 import puppeteer from "puppeteer";
+import chromium from "@sparticuz/chromium";
 
 export async function exportResumePDF(resumeId) {
   const browser = await puppeteer.launch({
-    headless: "new",
-    args: ["--no-sandbox"],
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath: await chromium.executablePath(),
+    headless: chromium.headless,
   });
 
   const page = await browser.newPage();

@@ -10,11 +10,11 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
-// Serve static files from the 'view' directory
-app.use(express.static("view"));
+// Serve static files from the 'public' directory
+app.use(express.static("public"));
 
 app.get("/", (req, res) => {
-  res.sendFile("index.html", { root: "view" });
+  res.sendFile("index.html", { root: "public" });
 });
 
 // PDF Export Endpoint
