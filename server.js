@@ -10,8 +10,11 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
+// Serve static files from the 'view' directory
+app.use(express.static("view"));
+
 app.get("/", (req, res) => {
-  res.sendFile("view/index.html", { root: "." });
+  res.sendFile("index.html", { root: "view" });
 });
 
 // PDF Export Endpoint
@@ -34,4 +37,8 @@ app.post("/export-pdf/:id", async (req, res) => {
   }
 });
 
-app.listen(3001, () => console.log("PDF export server running on port 3001"));
+const PORT = process.env.PORT || 3001;
+
+app.listen(PORT, () =>
+  console.log(`PDF export server running on port ${PORT}`)
+);
