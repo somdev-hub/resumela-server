@@ -14,7 +14,8 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
-  res.sendFile("index.html", { root: "public" });
+  // res.sendFile("index.html", { root: "public" });
+  res.sendFile(__dirname + "/public/index.html");
 });
 
 // PDF Export Endpoint
