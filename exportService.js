@@ -17,7 +17,7 @@ export async function exportResumePDF(resumeId) {
 
   try {
     // Pass resume JSON into the page
-    await page.goto(`${process.env.URL}/${resumeId}`, {
+    await page.goto(`${process.env.URL}/view/document/${resumeId}`, {
       waitUntil: "domcontentloaded",
     });
 
