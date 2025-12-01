@@ -26,6 +26,10 @@ app.post("/export-pdf/:id", async (req, res) => {
 
     const pdfBuffer = await exportResumePDF(resumeId);
 
+    if (pdfBuffer === null) {
+      return res.status(500).send("Failed to generate PDF");
+    }
+
     res.set({
       "Content-Type": "application/pdf",
       "Content-Disposition": "attachment; filename=resume.pdf",
