@@ -11,13 +11,20 @@ export async function exportResumePDF(resumeId) {
     
     if (isProduction) {
       browser = await puppeteer.launch({
-        args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
+        args: [
+          ...(chromium.args || []),
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-gpu",
+        ],
         defaultViewport: chromium.defaultViewport,
         executablePath: await chromium.executablePath(),
         headless: chromium.headless,
       });
     } else {
-      browser = await puppeteer.launch();
+      browser = await puppeteer.launch({
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      });
     }
 
     const page = await browser.newPage();
